@@ -4,4 +4,7 @@
 - https://github.com/unode/firefox_decrypt/blob/main/firefox_decrypt.py
 - https://github.com/Busindre/dumpzilla/blob/master/dumpzilla.py
 
+# Il faut faire cette commande dans le terminal pour que le script marche :
+- pip install lz4
+
 # Téléchargez les codes et exécutez "main.py", vous verrez le résultat ;)
