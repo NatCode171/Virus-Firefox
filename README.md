@@ -10,3 +10,5 @@ Téléchargez les codes et exécutez "main.py", vous verrez le résultat ;)
 
 # Il faut faire cette commande dans le terminal pour que le script marche :
 - pip install lz4
+
+# Pas encore fini*
