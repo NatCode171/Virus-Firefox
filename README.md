@@ -1,5 +1,5 @@
 # Un stealer !!!
-Mon programme Python est un virus qui récupère toutes les données (mots de passe enregistrés, sites, historique et bien plus) et les transfère vers un serveur (serveur.php).
+Mon programme Python est un virus qui récupère toutes les données (mots de passe enregistrés, sites, historique et bien plus) et les transfère vers un serveur (https://votre-site.com/recevoir.php).
 - Je ne serai pas responsable de ce que vous ferez de mon code.
 
 Créer un site web et mettez "recevoir.php" dessus.
